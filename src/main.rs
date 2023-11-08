@@ -1,8 +1,8 @@
 use std::io::stdin;
 use std::collections::{BTreeMap, BTreeSet};
 
-type Graph = BTreeMap<&'static str, BTreeMap<&'static str, usize>>;
-fn dijakstra<'a>(graph: Graph, start: &'a str, goal: &'a str) -> Result<Vec<&'a str>, &'a str> {
+type Graph<'a > = BTreeMap<&'a str, BTreeMap<&'a str, usize>>;
+fn dijakstra<'a>(graph: Graph<'a>, start: &'a str, goal: &'a str) -> Result<Vec<&'a str>, &'a str> {
     let mut open_list: BTreeSet<(usize, &str)> = BTreeSet::new();
     open_list.insert((0, start));
 
@@ -107,21 +107,22 @@ fn main() {
             ])),
         ]
     );
+    println!("Dijakstra's Algorithm");
     println!("Graph: {:#?}", graph);
     // Ask user for start and goal node
     show_nodes(&graph);
-    let start = ask_node(&graph, "Input start node:");
+    let start = ask_node(&graph, "Input START node:");
     println!();
     show_nodes(&graph);
-    let goal = ask_node(&graph, "Input goal node:");
+    let goal = ask_node(&graph, "Input GOAL node:");
     if let Ok(path ) = dijakstra(graph, &start, &goal) {
         let output = path.join(" -> ");
-        println!("Path: \n{}",output );
+        println!("Least Cost Path: \n{}",output );
     } else {
         println!("Unecpected error");
     }
 
-    // prompt if to repeat
+    // prompt whether to repeat
     println!("continue? (y/n)");
     let mut repeat: String = String::new();
     stdin().read_line(&mut repeat).unwrap();
