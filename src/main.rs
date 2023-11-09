@@ -3,6 +3,8 @@ use std::io::{stdin, Write, self, BufReader};
 use std::collections::{BTreeMap, BTreeSet};
 type Graph<T> = BTreeMap<T, BTreeMap<T, usize>>;
 fn dijakstra<'a>(graph: &'a Graph<String>, start: &'a str, goal: &'a str) -> Result<Vec<&'a str>, &'a str> {
+    // Use a Binary Tree Set to act like a Priority Queue
+    // which will be important later during traversal
     let mut open_list: BTreeSet<(usize, &str)> = BTreeSet::new();
     open_list.insert((0, &start));
 
@@ -11,9 +13,11 @@ fn dijakstra<'a>(graph: &'a Graph<String>, start: &'a str, goal: &'a str) -> Res
     // set it to zero for start node
     distances.insert(&start, 0);
 
+    // Will be used for backtracking
     let mut origin: BTreeMap<&str, &str> = BTreeMap::new();
 
     while !open_list.is_empty() {
+        // pop_first assures the next node to be visited is the cloest one from the current node
         let (_, current) = open_list.pop_first().unwrap();
 
         if current == goal  {
@@ -31,9 +35,15 @@ fn dijakstra<'a>(graph: &'a Graph<String>, start: &'a str, goal: &'a str) -> Res
 
         // Visit each neighbor of the current node
         for (neighbor, cost) in graph.get(current).unwrap() {
+            // Compare the new distance with the cost in distances.
+            // Peep the least distance
+
+            // For example, if the current node A is marked with a distance of 6, 
+            // and the edge connecting it with a neighbor B has length 2, 
+            // then the distance to B through A will be 6 + 2 = 8.
             let new_distance = distances.get(current).unwrap() + cost;
-            // Compare the new distance with the cost in distances
-            // keep the least distance
+            // If B was previously marked with a distance > 8 then change it to 8. 
+            // Otherwise, the current value will be kept
             if new_distance < *distances.get(neighbor.as_str()).unwrap() {
                 origin.insert(neighbor, current);
                 distances.insert(neighbor, new_distance);
@@ -52,6 +62,7 @@ fn input() -> String {
     mode.trim().to_string()
 }
 
+// Helper function to ask user for a node that exists in the given graph
 fn ask_node(graph: &Graph<String>, msg: &str) -> String {
     println!("{}", msg);
     let node = input();
